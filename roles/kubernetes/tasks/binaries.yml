@@ -28,6 +28,18 @@
     - 'kubelet_restart'
     - 'kube_proxy_restart'
 
+- name: 'unarchive kubernetes server salts and manifests'
+  unarchive:
+    src: '/opt/k8s/{{ kubernetes_version }}/kubernetes/server/{{ item }}'
+    dest: '/opt/k8s/{{ kubernetes_version }}'
+    remote_src: 'yes'
+  become: 'yes'
+  run_once: 'true'
+  delegate_to: '{{ groups["host-coordinators"][0] }}'
+  with_items:
+    - 'kubernetes-salt.tar.gz'
+    - 'kubernetes-manifests.tar.gz'
+
 - name: 'ensure /opt/k8s/kubernetes'
   file:
     src: '/opt/k8s/{{ kubernetes_version }}/kubernetes'
