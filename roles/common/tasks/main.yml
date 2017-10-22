@@ -11,22 +11,34 @@
 - name: make sure the docker data directory exists
   file:
     state: 'directory'
-    path: '/data/docker'
+    path: '{{ item }}'
     owner: 'bb'
     mode: '777'
+  become: 'yes'
+  with_items:
+    - '/data/docker'
+    - '/data/docker/data'
+    - '/data/docker/tmp'
+
+- name: configure the docker daemon
+  lineinfile:
+    dest: '/etc/default/docker'
+    regexp: '^DOCKER_OPTS='
+    line: 'DOCKER_OPTS="-s aufs -g /data/docker/data -D"'
+  notify: 'docker_restart'
   become: 'yes'
 
 - name: configure the docker daemon
   lineinfile:
-    dest: "/etc/default/docker"
-    regexp: "^DOCKER_OPTS="
-    line: "DOCKER_OPTS=\"-s aufs -g /data/docker/data -D\""
-  notify: "docker_restart"
+    dest: '/etc/default/docker'
+    regexp: '^export DOCKER_TMPDIR='
+    line: 'export DOCKER_TMPDIR="/data/docker/tmp"'
+  notify: 'docker_restart'
   become: 'yes'
 
 - name: add the bb user to the docker group
   user:
-    name: "bb"
-    groups: "docker"
-    append: "yes"
+    name: 'bb'
+    groups: 'docker'
+    append: 'yes'
   become: 'yes'
