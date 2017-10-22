@@ -1,0 +1,6 @@
+---
+- include_tasks: 'binaries.yml'
+  tags: 'kube_binaries'
+
+- include_tasks: 'services.yml'
+  tags: 'kube_services'

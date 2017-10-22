@@ -1,0 +1,10 @@
+[host:children]
+host-coordinators
+host-workers
+
+[host-coordinators]
+jill-n1.local     ansible_ssh_user=bb
+
+[host-workers]
+jill-n2.local     ansible_ssh_user=bb
+jill-n3.local     ansible_ssh_user=bb

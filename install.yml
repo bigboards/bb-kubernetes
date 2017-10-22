@@ -1,0 +1,15 @@
+---
+- hosts: host
+  roles:
+    - { role: 'init', tags: 'always' }
+
+- hosts: host-coordinators
+  roles:
+    - { role: 'kubectl', tags: 'kubectl' }
+  tags: 'masters'
+
+- hosts: host
+  roles:
+    - { role: 'docker', tags: 'docker' }
+    - { role: 'kubernetes', tags: 'kubernetes' }
+  tags: 'workers'

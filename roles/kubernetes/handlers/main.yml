@@ -1,0 +1,12 @@
+---
+- name: 'kubelet_restart'
+  service:
+    name: 'kubelet'
+    state: 'restarted'
+  become: 'yes'
+
+- name: 'kube_proxy_restart'
+  service:
+    name: 'kube-proxy'
+    state: 'restarted'
+  become: 'yes'

@@ -1,0 +1,54 @@
+---
+- name: 'ensure /opt/k8s/{{ kubernetes_version }}'
+  file:
+    path: '/opt/k8s/{{ kubernetes_version }}'
+    state: 'directory'
+  become: 'yes'
+    
+- name: 'download and unarchive kubernetes binaries'
+  unarchive:
+    src: 'https://github.com/kubernetes/kubernetes/releases/download/{{ kubernetes_version }}/kubernetes.tar.gz'
+    dest: '/opt/k8s/{{ kubernetes_version }}'
+    remote_src: 'yes'
+  become: 'yes'
+
+- name: 'download kubernetes server binaries'
+  shell: 'KUBERNETES_SKIP_CONFIRM=true /opt/k8s/{{ kubernetes_version }}/kubernetes/cluster/get-kube-binaries.sh'
+  args:
+    creates: '/opt/k8s/{{ kubernetes_version }}/kubernetes/server/kubernetes-server-linux-amd64.tar.gz'
+  become: 'yes'
+
+- name: 'unarchive kubernetes server binaries'
+  unarchive:
+    src: '/opt/k8s/{{ kubernetes_version }}/kubernetes/server/kubernetes-server-linux-amd64.tar.gz'
+    dest: '/opt/k8s/{{ kubernetes_version }}'
+    remote_src: 'yes'
+  become: 'yes'
+  notify:
+    - 'kubelet_restart'
+    - 'kube_proxy_restart'
+
+- name: 'ensure /opt/k8s/kubernetes'
+  file:
+    src: '/opt/k8s/{{ kubernetes_version }}/kubernetes'
+    dest: '/opt/k8s/kubernetes'
+    state: 'link'
+    mode: '0755'
+  become: 'yes'
+  notify:
+    - 'kubelet_restart'
+    - 'kube_proxy_restart'
+
+- name: 'ensure /usr/bin commands'
+  file:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: 'link'
+    mode: '0644'
+  become: 'yes'
+  with_items:
+    - { src: '/opt/k8s/kubernetes/server/bin/kubelet', dest: '/usr/local/bin/kubelet' }
+    - { src: '/opt/k8s/kubernetes/server/bin/kube-proxy', dest: '/usr/local/bin/kube-proxy' }
+  notify:
+    - 'kubelet_restart'
+    - 'kube_proxy_restart'

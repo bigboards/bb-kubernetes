@@ -1,0 +1,26 @@
+---
+- name: 'fetch version kubernetes'
+  uri:
+    url: 'https://storage.googleapis.com/kubernetes-release/release/stable.txt'
+    return_content: 'yes'
+  register: 'kube_version'
+
+- name: 'debug version kubernetes'
+  debug:
+    var: 'kube_version.content'
+
+- name: 'strip version kubernetes'
+  set_fact:
+    kubernetes_version: "{{ kube_version.content | replace('\n','') }}"
+
+- name: 'debug stripped version kubernetes'
+  debug:
+    var: 'kubernetes_version'
+
+- name: 'set_fact : cluster_name'
+  set_fact:
+    cluster_name: '{{ inventory_file | replace(".yml", "") }}'
+
+- name: 'debug : cluster_name'
+  debug:
+    var: 'cluster_name'

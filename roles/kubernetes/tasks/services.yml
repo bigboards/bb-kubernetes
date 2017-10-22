@@ -1,0 +1,15 @@
+---
+- name: 'install kubernetes confs'
+  template:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+  become: 'yes'
+  with_items:
+    - 'etc/kubernetes/kube.conf'
+    - 'etc/kubernetes/kubelet.conf'
+    - 'etc/kubernetes/kube-proxy.conf'
+    - 'etc/init/kubelet.conf'
+    - 'etc/init/kube-proxy.conf'
+  notify:
+    - 'kubelet_restart'
+    - 'kube_proxy_restart'

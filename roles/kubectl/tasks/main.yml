@@ -1,0 +1,51 @@
+---
+- name: 'download kubectl'
+  get_url:
+    url: 'https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kubectl'
+    dest: '/usr/local/bin/'
+    mode: 'a=rx,o=rx,g=rx'
+  become: 'yes'
+
+- name: 'configure kubectl'
+  shell: 'kubectl config set-cluster {{ cluster_name }} --server=http://{{ cluster_name }}-n1 --insecure-skip-tls-verify=true && kubectl config set-context {{ cluster_name }} --cluster={{ cluster_name }} --user=admin && kubectl config set-credentials admin --username=bb && kubectl config use-context {{ cluster_name }}'
+#  args:
+#    creates: '~/.kube/config'
+  become: 'yes'
+
+- name: 'ensure path /var/lib/kubelet'
+  file:
+    path: '/var/lib/kubelet'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  become: 'yes'
+
+- name: 'ensure path /var/lib/kube-proxy'
+  file:
+    path: '/var/lib/kube-proxy'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  become: 'yes'
+
+- name: 'copy file /var/lib/kubelet/kubeconfig'
+  copy:
+    src: '~/.kube/config'
+    dest: '/var/lib/kubelet/kubeconfig'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    remote_src: 'yes'
+  become: 'yes'
+
+- name: 'copy file /var/lib/kube-proxy/kubeconfig'
+  copy:
+    src: '~/.kube/config'
+    dest: '/var/lib/kube-proxy/kubeconfig'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    remote_src: 'yes'
+  become: 'yes'
