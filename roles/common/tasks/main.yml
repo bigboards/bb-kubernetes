@@ -1,0 +1,32 @@
+---
+- name: 'mount /data'
+  mount:
+    path: '/data'
+    src: '/dev/sda1'
+    fstype: 'ext4'
+    opts: 'defaults,errors=remount-ro'
+    state: 'mounted'
+  become: 'yes'
+
+- name: make sure the docker data directory exists
+  file:
+    state: 'directory'
+    path: '/data/docker'
+    owner: 'bb'
+    mode: '777'
+  become: 'yes'
+
+- name: configure the docker daemon
+  lineinfile:
+    dest: "/etc/default/docker"
+    regexp: "^DOCKER_OPTS="
+    line: "DOCKER_OPTS=\"-s aufs -g /data/docker/data -D\""
+  notify: "docker_restart"
+  become: 'yes'
+
+- name: add the bb user to the docker group
+  user:
+    name: "bb"
+    groups: "docker"
+    append: "yes"
+  become: 'yes'

@@ -2,6 +2,7 @@
 - hosts: host
   roles:
     - { role: 'init', tags: 'always' }
+    - { role: 'common', tags: 'common' }
 
 - hosts: host-coordinators
   roles:

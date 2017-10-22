@@ -2,5 +2,7 @@
 .idea
 *.iml
 
-# ansible retry files
+# ansible files
 *.retry
+ansible.log
+
